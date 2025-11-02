@@ -1,0 +1,227 @@
+// • Graphics (shape, color, line, placement, custom shapes)
+// • Control Structures (if, for, while)
+// • Movement
+// • Interaction (mouse, keyboard)
+// • Custom functions with passing parameters
+// • Arrays
+// • Math
+// • Random
+// • Functions
+
+// Must haves:
+
+// • heavy use of variables
+// • custom functions passing variables as parameter
+// • loops
+// • control structures
+// • math or random
+// • some use of interaction or change over time
+// • movement, change, variety
+// • arrays
+// • conditionals
+// • OOP - with methods + passing parameters
+
+
+//NOTES ::: Sketch should have extreme randomness and speed, jarring activity, but with a press of space or a mouse click, should revert from chaos to absolute order, a still frame of something beautiful.
+
+
+//CLICK or keypress could toggle between clock display and chaos
+
+//******Time should show at beginning, change to next scene, and then show again in intervals?
+
+
+
+///NEW time intro scene
+function setup() {
+  createCanvas(500, 500);
+  textSize(15);
+  textAlign(CENTER, CENTER);
+}
+
+function draw() {
+  background(0);
+  
+  // current time
+  let h = hour();
+  let m = minute();
+  let s = second();
+  
+  let suffix = "AM"; // AM is default
+  
+  if (h == 0) {
+    // midnight
+    h = 12;
+  } else if (h == 12) {
+    // noon
+    suffix = "PM";
+  } else if (h > 12) {
+    // PM (1PM to 11PM)
+    h = h - 12; // convert 13-23 to 1-11
+    suffix = "PM";
+  }
+  
+  // two digit display
+  let timeString = nf(h, 2) + ":" + nf(m, 2) + ":" + nf(s, 2) + " " + suffix;
+
+  
+  fill(255);
+  text(timeString, width / 2, height / 2);
+}
+
+
+
+const numLoops = 1000;
+
+let LoopsX = [];
+
+let LoopsY = [];
+
+let LoopsSize = [];
+
+let LoopsSpeed = [];
+
+let LoopsAreMoving = true;
+
+
+
+
+
+
+
+function setup() {
+
+  createCanvas(500, 500);
+
+
+
+
+
+
+
+
+
+  for (let i = 0; i < numLoops; i++) {
+
+    LoopsX[i] = random(width);
+
+    LoopsY[i] = random(height);
+
+    LoopsSize[i] = random(1, 1000);
+
+    LoopsSpeed[i] = random(0.5, 200);
+
+  }
+
+}
+
+
+
+
+
+
+
+function draw() {
+
+  // after 5 secs
+
+  if (millis() < 5000) {
+
+    drawVoid(); // black background for 5 seconds
+
+  } else {
+
+    // randomize color for background after
+
+    background(random(255), random(255), random(255));
+
+  }
+
+
+
+  handleLoops(); // draw ellipses
+
+}
+
+
+
+function drawVoid() {
+
+  let topColor = color(0);
+
+  let bottomColor = color(0);
+
+  for (let i = 0; i < height; i++) {
+
+    let inter = map(i, 0, height, 0, 1);
+
+    let c = lerpColor(topColor, bottomColor, inter);
+
+    stroke(c);
+
+    line(0, i, width, i);
+
+  }
+
+}
+
+
+
+function handleLoops() {
+
+  for (let i = 0; i < numLoops; i++) {
+
+    // only move if true
+
+    if (LoopsAreMoving) {
+
+      LoopsY[i] -= LoopsSpeed[i];
+
+    }
+
+
+
+    // reset when reaches top
+
+    if (LoopsY[i] < -LoopsSize[i]) {
+
+      LoopsY[i] = height + LoopsSize[i];
+
+      LoopsX[i] = random(width);
+
+    }
+
+
+
+    stroke(255, 170); // transparent white
+
+    strokeWeight(1);
+
+    noFill();
+
+    ellipse(2 * LoopsX[i], LoopsY[i], LoopsSize[i], LoopsSize[i]);
+
+  }
+
+}
+
+
+
+function mousePressed() {
+
+  // switch boolean true/false
+
+  LoopsAreMoving = !LoopsAreMoving;
+
+}
+
+
+
+function keyPressed() {
+
+  // switch boolean true/false
+
+  LoopsAreMoving = !LoopsAreMoving;
+
+}
+
+
