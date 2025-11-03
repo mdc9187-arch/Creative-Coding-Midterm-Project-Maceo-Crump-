@@ -1,12 +1,3 @@
-// • Graphics (shape, color, line, placement, custom shapes)
-// • Control Structures (if, for, while)
-// • Movement
-// • Interaction (mouse, keyboard)
-// • Custom functions with passing parameters
-// • Arrays
-// • Math
-// • Random
-// • Functions
 
 // Must haves:
 
@@ -34,6 +25,10 @@
 ///NEW time intro scene
 
 
+//Randomize directions of motion!!
+
+
+
 // Scene 1 = Clock, Scene 2 = Chaos
 let currentScene = 1;
 
@@ -41,29 +36,36 @@ let currentScene = 1;
 const numLoops = 1000;
 
 let LoopsX = [];
-
 let LoopsY = [];
 
 let LoopsSize = [];
 
-let LoopsSpeed = [];
+let LoopsCurrentSpeed = [];
+let LoopsMaxSpeed = [];
+let LoopsAcceleration = [];
 
 let LoopsAreMoving = true;
 
 
 function setup() {
-  createCanvas(500, 500);
+  createCanvas(1000, 1000);
 
   for (let i = 0; i < numLoops; i++) {
     LoopsX[i] = random(width);
     LoopsY[i] = random(height);
     LoopsSize[i] = random(1, 1000);
-    LoopsSpeed[i] = random(0.5, 200);
+    
+LoopsMaxSpeed[i] = random(1, 2000);
+LoopsCurrentSpeed[i] = 0;
+LoopsAcceleration[i] = random(1, 10);
+
+
 
   }
 }
 
 function draw() {
+
 
   if (currentScene == 1) {
     drawClock();
@@ -112,12 +114,11 @@ function drawClock() {
 
 
 //   SCENE 2: CHAOS
-
-  
+ 
 function drawChaos() {
   // after 5 secs 
-  if (millis() < 5000) {
-    drawVoid(); // black background first5 secos
+  if (millis() < 15000) {
+    drawVoid(); // black background first 15 secos
   } else {
     // randomize color for background after
     background(random(255), random(255), random(255));
@@ -141,7 +142,12 @@ function handleLoops() {
   for (let i = 0; i < numLoops; i++) {
     // only move if true
     if (LoopsAreMoving) {
-      LoopsY[i] -= LoopsSpeed[i];
+      if (LoopsCurrentSpeed[i] < LoopsMaxSpeed[i]) {
+              LoopsCurrentSpeed[i] += LoopsAcceleration[i];
+            } else {
+              LoopsCurrentSpeed[i] = LoopsMaxSpeed[i];
+            }
+LoopsY[i] -= LoopsCurrentSpeed[i];
     }
 
     // reset when reaches top
@@ -150,9 +156,11 @@ function handleLoops() {
       LoopsX[i] = random(width);
     }
 
+let sw = random(1, 10);
+strokeWeight (sw);
+
     // Loop styles
     stroke(255, 170); // transparent white
-    strokeWeight(1);
     noFill();
     ellipse(2 * LoopsX[i], LoopsY[i], LoopsSize[i], LoopsSize[i]);
   }
