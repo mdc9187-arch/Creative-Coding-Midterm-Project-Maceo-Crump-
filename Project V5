@@ -1,192 +1,191 @@
+//Randomize shapes further!!!!!!
 
-// Must haves:
+let Scene = 1;
 
-// • heavy use of variables
-// • custom functions passing variables as parameter
-// • Loops
-// • control structures
-// • math or random
-// • some use of interaction or change over time
-// • movement, change, variety
-// • arrays
-// • conditionals
-// • OOP - with methods + passing parameters
+let SceneSwitchInterval = 1000;
+let SceneSwitch = 0;
 
-
-//NOTES ::: Sketch should have extreme randomness and speed, jarring activity, but with a press of space or a mouse click, should revert from chaos to absolute order, a still frame of something beautiful.
-
-
-//CLICK or keypress could toggle between clock display and chaos
-
-//******Time should show at beginning, change to next scene, and then show again in intervals?
-
-//Make Increases/changes in stroke weight after time change, alternate back and forth
-
-///NEW time intro scene
-
-
-//Randomize directions of motion!!
-
-
-
-// Scene 1 = Clock, Scene 2 = Chaos
-let currentScene = 1;
-
+//chaosvariable
+let SpeedLimit = 1;
+let ChaosStrokeWeight = 1;
 
 const numLoops = 1000;
 
 let LoopsX = [];
 let LoopsY = [];
-
 let LoopsSize = [];
 
-let LoopsCurrentSpeed = [];
-let LoopsMaxSpeed = [];
-let LoopsAcceleration = [];
+let LoopsSpeedX = [];
+let LoopsSpeedY = [];
 
 let LoopsAreMoving = true;
 
-
 function setup() {
   createCanvas(1000, 1000);
+  background(0);
 
-  for (let i = 0; i < numLoops; i++) {
-    LoopsX[i] = random(width);
-    LoopsY[i] = random(height);
-    LoopsSize[i] = random(1, 1000);
-    
-LoopsMaxSpeed[i] = random(1, 2000);
-LoopsCurrentSpeed[i] = 0;
-LoopsAcceleration[i] = random(1, 10);
-
-
-
-  }
+  NewLoopSpeeds(); 
+  
+  SceneSwitch = millis();
 }
 
 function draw() {
+  
+  if (millis() - SceneSwitch > SceneSwitchInterval) {
+    if (Scene == 1) {
+      Scene = 2;
 
 
-  if (currentScene == 1) {
+      RandomizeChaosVariables();
+
+
+    } else {
+      Scene = 1;
+
+    }
+
+    SceneSwitch = millis();
+
+  }
+
+  if (Scene == 1) {
     drawClock();
-  } 
 
-  else if (currentScene == 2) {
+  } else if (Scene == 2) {
     drawChaos();
+
+  }
+
+}
+
+
+function RandomizeChaosVariables() {
+  // newspeed
+  SpeedLimit = random(1, 10); 
+  
+  // newsw
+  ChaosStrokeWeight = random(1, 8);
+  
+  NewLoopSpeeds();
+
+}
+
+
+function NewLoopSpeeds() {
+  for (let i = 0; i < numLoops; i++) {
+   
+
+    if (LoopsX[i] == null) {
+      LoopsX[i] = random(width);
+      LoopsY[i] = random(height);
+      LoopsSize[i] = random(1, 100);
+    }
+    
+
+    LoopsSpeedX[i] = random(-SpeedLimit, SpeedLimit);
+    LoopsSpeedY[i] = random(-SpeedLimit, SpeedLimit);
+    
+    if (abs(LoopsSpeedX[i]) < 0.1 && abs(LoopsSpeedY[i]) < 0.1) {
+        LoopsSpeedY[i] = random(1, SpeedLimit / 2);
+    }
   }
 }
 
-//   SCENE 1: CLOCK
+function DigitalClock() {
+  let h = hour();
+  let m = minute();
+  let s = second();
+  let suffix = "AM";
+
+  if (h == 0) {
+    h = 12;
+  } else if (h == 12) {
+    suffix = "PM";
+  } else if (h > 12) {
+    h = h - 12;
+    suffix = "PM";
+  }
+
+  return nf(h, 2) + ":" + nf(m, 2) + ":" + nf(s, 2) + " " + suffix;
+}
+
 function drawClock() {
   background(0);
   fill(255);
   noStroke();
-  textSize(15);
+  textSize(50);
   textAlign(CENTER, CENTER);
 
-  // current time
-  let h = hour();
-  let m = minute();
-  let s = second();
-
-  let suffix = "AM"; // AM is default
+  let timeofday = DigitalClock();
   
-  if (h == 0) {
-    // midnight
-    h = 12;
-  } 
-  else if (h == 12) {
-    // noon
-    suffix = "PM";
-  } 
-  else if (h > 12) {
-    // PM (1PM to 11PM)
-    h = h - 12; // convert 13-23 to 1-11
-    suffix = "PM";
-  }
-  
-  // two digits
-  let timeString = nf(h, 2) + ":" + nf(m, 2) + ":" + nf(s, 2) + " " + suffix;
-
-  text(timeString, width / 2, height / 2);
-
+  text(timeofday, width / 2, height / 2);
 }
 
-
-//   SCENE 2: CHAOS
- 
 function drawChaos() {
-  // after 5 secs 
-  if (millis() < 15000) {
-    drawVoid(); // black background first 15 secos
-  } else {
-    // randomize color for background after
-    background(random(255), random(255), random(255));
-  }
-
-  handleLoops(); // draw ellipses
+  background(0, 0, 0, 25); 
+  HandleLoops();
 }
 
-function drawVoid() {
-  let topColor = color(0);
-  let bottomColor = color(0);
-  for (let i = 0; i < height; i++) {
-    let inter = map(i, 0, height, 0, 1);
-    let c = lerpColor(topColor, bottomColor, inter);
-    stroke(c);
-    line(0, i, width, i);
-  }
-}
-
-function handleLoops() {
+function HandleLoops() {
+  noFill();
+  rectMode(CENTER); 
+  
+  strokeWeight(ChaosStrokeWeight);
+  
   for (let i = 0; i < numLoops; i++) {
-    // only move if true
     if (LoopsAreMoving) {
-      if (LoopsCurrentSpeed[i] < LoopsMaxSpeed[i]) {
-              LoopsCurrentSpeed[i] += LoopsAcceleration[i];
-            } else {
-              LoopsCurrentSpeed[i] = LoopsMaxSpeed[i];
-            }
-LoopsY[i] -= LoopsCurrentSpeed[i];
+      LoopsX[i] += LoopsSpeedX[i];
+      LoopsY[i] += LoopsSpeedY[i];
     }
 
-    // reset when reaches top
-    if (LoopsY[i] < -LoopsSize[i]) {
-      LoopsY[i] = height + LoopsSize[i];
-      LoopsX[i] = random(width);
+    if (LoopsX[i] > width + LoopsSize[i] / 2) {
+      LoopsX[i] = -LoopsSize[i] / 2;
+    } else if (LoopsX[i] < -LoopsSize[i] / 2) {
+      LoopsX[i] = width + LoopsSize[i] / 2;
     }
+    if (LoopsY[i] > height + LoopsSize[i] / 2) {
+      LoopsY[i] = -LoopsSize[i] / 2;
+    } else if (LoopsY[i] < -LoopsSize[i] / 2) {
+      LoopsY[i] = height + LoopsSize[i] / 2;
+    }
+    
+    stroke(
+      random(0,255),
+      random(0,255),
+      random(0,255),
+      random(0,255),
 
-let sw = random(1, 10);
-strokeWeight (sw);
 
-    // Loop styles
-    stroke(255, 170); // transparent white
-    noFill();
-    ellipse(2 * LoopsX[i], LoopsY[i], LoopsSize[i], LoopsSize[i]);
+//****change to start and monochrome and add new random element each scene switch?
+
+//**play with random values below to create more variation
+
+
+    );
+    
+    let w = LoopsSize[i] * random(0.5, 2);
+    let h = LoopsSize[i] * random(0.5, 2);
+    
+    if (random(1) > 0.49) {
+      ellipse(LoopsX[i], LoopsY[i], w, h);
+    } else {
+      rect(LoopsX[i], LoopsY[i], w, h);
+    }
   }
-}
+  
+  rectMode(CORNER); 
 
 
-
-
-function mousePressed() {
-
-  // freeze scene 2
-
-  LoopsAreMoving = !LoopsAreMoving;
-
-}
-
+  }
 
 
 function keyPressed() {
-
-  // switch scene
-
-  if (currentScene == 1) {
-    currentScene = 2;
+  if (Scene == 1) {
+    Scene = 2;
+    RandomizeChaosVariables();
   } else {
-    currentScene = 1;
+    Scene = 1;
   }
+  
+  SceneSwitch = millis();
 }
-
